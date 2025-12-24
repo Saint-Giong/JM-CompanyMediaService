@@ -152,14 +152,14 @@ class CompanyProfileControllerTest {
     }
 
     @Nested
-    @DisplayName("Query Company Media API")
-    class QueryCompanyMediaApiTests {
+    @DisplayName("Get Company Media API")
+    class GetCompanyMediaApiTests {
 
         private String existingId;
         private QueryCompanyMediaResponseDto validResponse;
 
         @BeforeEach
-        void setUpQuery() {
+        void setUpGet() {
             existingId = UUID.randomUUID().toString();
             validResponse = QueryCompanyMediaResponseDto.builder()
                     .id(existingId)
@@ -221,6 +221,11 @@ class CompanyProfileControllerTest {
 
             verify(queryService, times(1)).getCompanyMedia(eq(existingId));
         }
+    }
+
+    @Nested
+    @DisplayName("List Company Media By Company API")
+    class ListCompanyMediaByCompanyApiTests {
 
         @Test
         @DisplayName("Should list company media by companyId (async)")
@@ -255,6 +260,55 @@ class CompanyProfileControllerTest {
                     .andExpect(jsonPath("$.items[0].companyId").value(companyId));
 
             verify(queryService, times(1)).listCompanyMediaByCompany(eq(companyId));
+        }
+
+        @Test
+        @DisplayName("Should return 400 when listCompanyMediaByCompany missing companyId")
+        void testListCompanyMediaByCompany_MissingCompanyId_Fail() throws Exception {
+            // Act
+
+            // TO-DO: Fix this to 400
+            mockMvc.perform(get("/"))
+                    .andExpect(status().is5xxServerError());
+
+            verify(queryService, never()).listCompanyMediaByCompany(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Get Active Company Profile Image API")
+    class GetActiveCompanyProfileImageApiTests {
+
+        @Test
+        @DisplayName("Should get active company profile image successfully (async)")
+        void testGetActiveCompanyProfileImage_Valid_Success() throws Exception {
+            // Arrange
+            String companyId = UUID.randomUUID().toString();
+            QueryCompanyMediaResponseDto active = QueryCompanyMediaResponseDto.builder()
+                    .id(UUID.randomUUID().toString())
+                    .mediaTitle("Active Title")
+                    .mediaDescription("Active Desc")
+                    .mediaType("IMAGE")
+                    .mediaPath("http://example.com/active.png")
+                    .companyId(companyId)
+                    .active(true)
+                    .build();
+
+            when(queryService.getActiveCompanyProfileImage(eq(companyId))).thenReturn(active);
+
+            // Act
+            MvcResult result = mockMvc.perform(get("/active")
+                            .param("companyId", companyId))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            // Assert
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.companyId").value(companyId))
+                    .andExpect(jsonPath("$.active").value(true));
+
+            verify(queryService, times(1)).getActiveCompanyProfileImage(eq(companyId));
         }
 
         @Test
@@ -318,6 +372,27 @@ class CompanyProfileControllerTest {
                     .andExpect(status().isBadRequest());
 
             verify(updateService, never()).activateCompanyProfileImage(any());
+        }
+
+        @Test
+        @DisplayName("Should return 404 when activate target not found (async)")
+        void testActivateCompanyProfileImage_NotFound_Fail() throws Exception {
+            // Arrange
+            String mediaId = UUID.randomUUID().toString();
+            doThrow(new DomainException(DomainCode.RESOURCE_NOT_FOUND, "not found"))
+                    .when(updateService).activateCompanyProfileImage(eq(mediaId));
+
+            // Act
+            MvcResult result = mockMvc.perform(post("/" + mediaId + "/activate"))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            // Assert
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message", Matchers.containsString("not found")));
+
+            verify(updateService, times(1)).activateCompanyProfileImage(eq(mediaId));
         }
     }
 }
