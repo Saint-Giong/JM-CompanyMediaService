@@ -10,12 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import rmit.saintgiong.comapymediaservice.JmCompanyMediaApplication;
 import rmit.saintgiong.comapymediaservice.common.exception.DomainException;
-import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
+import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaMetaRequestDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.QueryCompanyMediaListResponseDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.QueryCompanyMediaResponseDto;
@@ -37,6 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
@@ -65,89 +67,116 @@ class CompanyProfileControllerTest {
     @DisplayName("Create Company Media API")
     class CreateCompanyMediaApiTests {
 
-        private CreateCompanyMediaRequestDto validCreateRequest;
+        private CreateCompanyMediaMetaRequestDto validMeta;
         private String generatedId;
 
         @BeforeEach
         void setUpCreate() {
             generatedId = UUID.randomUUID().toString();
-            validCreateRequest = CreateCompanyMediaRequestDto.builder()
+            validMeta = CreateCompanyMediaMetaRequestDto.builder()
                     .mediaTitle("Test Media")
                     .mediaDescription("Desc")
                     .mediaType(rmit.saintgiong.companymediaapi.internal.common.type.MediaType.IMAGE)
-                    .mediaPath("http://example.com/media.png")
                     .companyId(UUID.randomUUID().toString())
                     .build();
         }
 
         @Test
-        @DisplayName("Should create company media and return id (async)")
+        @DisplayName("Should create company media (multipart) and return id (async)")
         void testCreateCompany_Valid_Success() throws Exception {
-            // Arrange
             CreateCompanyMediaResponseDto mockResp = CreateCompanyMediaResponseDto.builder()
                     .id(generatedId)
                     .build();
 
-            when(createService.createCompanyMedia(any(CreateCompanyMediaRequestDto.class)))
+            when(createService.createCompanyMedia(any(CreateCompanyMediaMetaRequestDto.class), any(byte[].class), any(), any()))
                     .thenReturn(mockResp);
 
-            // Act
-            MvcResult result = mockMvc.perform(post("/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(validCreateRequest)))
+            MockMultipartFile metaPart = new MockMultipartFile(
+                    "meta",
+                    "meta.json",
+                    MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(validMeta)
+            );
+            MockMultipartFile filePart = new MockMultipartFile(
+                    "file",
+                    "media.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    "<<png data>>".getBytes()
+            );
+
+            MvcResult result = mockMvc.perform(multipart("/upload")
+                            .file(metaPart)
+                            .file(filePart))
                     .andExpect(request().asyncStarted())
                     .andReturn();
 
-            // Complete async
             mockMvc.perform(asyncDispatch(result))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(generatedId));
 
-            verify(createService, times(1)).createCompanyMedia(any(CreateCompanyMediaRequestDto.class));
+            verify(createService, times(1)).createCompanyMedia(any(CreateCompanyMediaMetaRequestDto.class), any(byte[].class), any(), any());
         }
 
         @Test
         @DisplayName("Should fail when mediaTitle is blank")
         void testCreateCompany_BlankTitle_Fail() throws Exception {
-            // Arrange
-            CreateCompanyMediaRequestDto req = CreateCompanyMediaRequestDto.builder()
+            CreateCompanyMediaMetaRequestDto req = CreateCompanyMediaMetaRequestDto.builder()
                     .mediaTitle("")
-                    .mediaDescription(validCreateRequest.getMediaDescription())
-                    .mediaType(validCreateRequest.getMediaType())
-                    .mediaPath(validCreateRequest.getMediaPath())
-                    .companyId(validCreateRequest.getCompanyId())
+                    .mediaDescription(validMeta.getMediaDescription())
+                    .mediaType(validMeta.getMediaType())
+                    .companyId(validMeta.getCompanyId())
                     .build();
 
-            // Act
-            mockMvc.perform(post("/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(req)))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.details[*].field", Matchers.hasItem("mediaTitle")));
+            MockMultipartFile metaPart = new MockMultipartFile(
+                    "meta",
+                    "meta.json",
+                    MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(req)
+            );
+            MockMultipartFile filePart = new MockMultipartFile(
+                    "file",
+                    "media.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    "<<png data>>".getBytes()
+            );
 
-            verify(createService, never()).createCompanyMedia(any());
+            mockMvc.perform(multipart("/upload")
+                            .file(metaPart)
+                            .file(filePart))
+                    .andExpect(status().isBadRequest());
+
+            verify(createService, never()).createCompanyMedia(any(), any(), any(), any());
         }
 
         @Test
         @DisplayName("Should fail when mediaType is null")
         void testCreateCompany_NullMediaType_Fail() throws Exception {
-            // Arrange
-            CreateCompanyMediaRequestDto req = CreateCompanyMediaRequestDto.builder()
-                    .mediaTitle(validCreateRequest.getMediaTitle())
-                    .mediaDescription(validCreateRequest.getMediaDescription())
+            CreateCompanyMediaMetaRequestDto req = CreateCompanyMediaMetaRequestDto.builder()
+                    .mediaTitle(validMeta.getMediaTitle())
+                    .mediaDescription(validMeta.getMediaDescription())
                     .mediaType(null)
-                    .mediaPath(validCreateRequest.getMediaPath())
-                    .companyId(validCreateRequest.getCompanyId())
+                    .companyId(validMeta.getCompanyId())
                     .build();
 
-            // Act
-            mockMvc.perform(post("/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(req)))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.details[*].field", Matchers.hasItem("mediaType")));
+            MockMultipartFile metaPart = new MockMultipartFile(
+                    "meta",
+                    "meta.json",
+                    MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(req)
+            );
+            MockMultipartFile filePart = new MockMultipartFile(
+                    "file",
+                    "media.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    "<<png data>>".getBytes()
+            );
 
-            verify(createService, never()).createCompanyMedia(any());
+            mockMvc.perform(multipart("/upload")
+                            .file(metaPart)
+                            .file(filePart))
+                    .andExpect(status().isBadRequest());
+
+            verify(createService, never()).createCompanyMedia(any(), any(), any(), any());
         }
     }
 

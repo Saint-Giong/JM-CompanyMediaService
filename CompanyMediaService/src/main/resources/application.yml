@@ -44,3 +44,10 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
   show-actuator: false
+
+# Google Cloud Storage
+companymedia:
+  gcs:
+    bucket: ${COMPANYMEDIA_GCS_BUCKET:}
+    upload-prefix: ${COMPANYMEDIA_GCS_UPLOAD_PREFIX:company-media/}
+    signed-url-ttl-minutes: ${COMPANYMEDIA_GCS_SIGNED_URL_TTL_MINUTES:30}

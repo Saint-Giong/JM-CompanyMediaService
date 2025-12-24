@@ -1,23 +1,21 @@
 package rmit.saintgiong.comapymediaservice.domain.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaMetaRequestDto;
+import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.QueryCompanyMediaListResponseDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.QueryCompanyMediaResponseDto;
 import rmit.saintgiong.companymediaapi.internal.services.CreateCompanyMediaInterface;
 import rmit.saintgiong.companymediaapi.internal.services.QueryCompanyMediaInterface;
 import rmit.saintgiong.companymediaapi.internal.services.UpdateCompanyMediaInterface;
-import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
-import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 
 import java.util.concurrent.Callable;
 
@@ -31,10 +29,21 @@ public class CompanyMediaController {
 
     private final QueryCompanyMediaInterface queryService;
 
-    @PostMapping
-    public Callable<ResponseEntity<CreateCompanyMediaResponseDto>> createCompanyMedia(@Valid @RequestBody CreateCompanyMediaRequestDto requestDto) {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Callable<ResponseEntity<CreateCompanyMediaResponseDto>> uploadCompanyMedia(
+            @Valid @RequestPart("meta") String metaJson,
+            @RequestPart("file") MultipartFile file
+    ) {
         return () -> {
-            CreateCompanyMediaResponseDto response = createService.createCompanyMedia(requestDto);
+            CreateCompanyMediaMetaRequestDto meta = objectMapper.readValue(metaJson, CreateCompanyMediaMetaRequestDto.class);
+            CreateCompanyMediaResponseDto response = createService.createCompanyMedia(
+                    meta,
+                    file.getBytes(),
+                    file.getContentType(),
+                    file.getOriginalFilename()
+            );
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         };
     }

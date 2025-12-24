@@ -4,14 +4,10 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import rmit.saintgiong.comapymediaservice.domain.mappers.CompanyMediaMapper;
 import rmit.saintgiong.comapymediaservice.domain.repositories.CompanyMediaRepository;
 import rmit.saintgiong.comapymediaservice.domain.repositories.entities.CompanyMediaEntity;
-import rmit.saintgiong.companymediaapi.internal.common.dto.request.UpdateCompanyMediaRequestDto;
 import rmit.saintgiong.companymediaapi.internal.services.UpdateCompanyMediaInterface;
 import rmit.saintgiong.comapymediaservice.common.exception.DomainException;
-import rmit.saintgiong.comapymediaservice.domain.models.CompanyMedia;
-import rmit.saintgiong.comapymediaservice.domain.validators.CompanyMediaUpdateValidator;
 
 
 import java.util.UUID;
