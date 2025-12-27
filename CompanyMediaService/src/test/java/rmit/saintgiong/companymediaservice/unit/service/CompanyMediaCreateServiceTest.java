@@ -68,12 +68,16 @@ class CompanyMediaCreateServiceTest {
                 .mediaType(meta.getMediaType().name())
                 .mediaUrl(objectName)
                 .companyId(UUID.fromString(companyId))
-                .active(false)
                 .build();
 
         when(repository.save(any(CompanyMediaEntity.class))).thenReturn(savedEntity);
 
-        CreateCompanyMediaResponseDto resp = profileCreateService.createCompanyMedia(meta, bytes, contentType, "x.png");
+        CreateCompanyMediaResponseDto resp = profileCreateService.createCompanyMedia(
+                meta,
+                bytes,
+                contentType,
+                "x.png"
+        );
 
         assertNotNull(resp);
         assertEquals(generatedId.toString(), resp.getId());

@@ -7,6 +7,4 @@ public interface QueryCompanyMediaInterface {
     QueryCompanyMediaResponseDto getCompanyMedia(String id);
 
     QueryCompanyMediaListResponseDto listCompanyMediaByCompany(String companyId);
-
-    QueryCompanyMediaResponseDto getActiveCompanyProfileImage(String companyId);
 }

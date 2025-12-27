@@ -33,31 +33,37 @@ public class CompanyMediaCreateService implements CreateCompanyMediaInterface {
     @Override
     @Transactional
     public CreateCompanyMediaResponseDto createCompanyMedia(CreateCompanyMediaMetaRequestDto meta, byte[] bytes, String contentType, String originalFilename) {
-        log.info("method=createCompanyMedia(upload), message=Start uploading company media, meta={}", meta);
+        boolean hasUpload = bytes != null && bytes.length > 0;
+
+        log.info("method=createCompanyMedia, message=Start creating company media, hasUpload={}, meta={}", hasUpload, meta);
 
         // Validate business rules on meta
         createValidator.validate(meta);
 
         UUID companyId = UUID.fromString(meta.getCompanyId());
-        String ext = inferExtension(originalFilename, contentType);
-        String objectName = normalizePrefix(gcsProps.getUploadPrefix())
-                + "company/" + companyId + "/"
-                + UUID.randomUUID() + "-" + Instant.now().toEpochMilli()
-                + (ext.isBlank() ? "" : "." + ext);
 
-        String savedObjectName = objectStorageService.upload(objectName, bytes, contentType);
+        String resolvedMediaPath = null;
+        if (hasUpload) {
+            String ext = inferExtension(originalFilename, contentType);
+            String objectName = normalizePrefix(gcsProps.getUploadPrefix())
+                    + "company/" + companyId + "/"
+                    + UUID.randomUUID() + "-" + Instant.now().toEpochMilli()
+                    + (ext.isBlank() ? "" : "." + ext);
+
+            resolvedMediaPath = objectStorageService.upload(objectName, bytes, contentType);
+            log.info("method=createCompanyMedia, message=Uploaded company media objectName={}", resolvedMediaPath);
+        }
 
         CompanyMediaEntity entity = CompanyMediaEntity.builder()
                 .mediaTitle(meta.getMediaTitle())
                 .mediaDescription(meta.getMediaDescription())
-                .mediaType(meta.getMediaType().name())
-                .mediaUrl(savedObjectName)
+                .mediaType(meta.getMediaType() == null ? null : meta.getMediaType().name())
+                .mediaUrl(resolvedMediaPath)
                 .companyId(companyId)
-                .active(false)
                 .build();
 
         CompanyMediaEntity saved = repository.save(entity);
-        log.info("method=createCompanyMedia(upload), message=Successfully uploaded company media, id={}, objectName={}", saved.getId(), savedObjectName);
+        log.info("method=createCompanyMedia, message=Successfully created company media, id={}", saved.getId());
 
         return CreateCompanyMediaResponseDto.builder()
                 .id(String.valueOf(saved.getId()))
