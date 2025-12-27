@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>rmit.saintgiong</groupId>
-        <artifactId>companymedia</artifactId>
+        <artifactId>media</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>companymedia-api</artifactId>
+    <artifactId>media-api</artifactId>
     <name>CompanyMediaApi</name>
     <description>CompanyMediaApi</description>
     <packaging>jar</packaging>

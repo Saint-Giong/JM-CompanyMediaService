@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>rmit.saintgiong</groupId>
-        <artifactId>companymedia</artifactId>
+        <artifactId>media</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>companymedia-service</artifactId>
+    <artifactId>media-service</artifactId>
     <name>CompanyMediaService</name>
     <description>CompanyMediaService</description>
     <dependencyManagement>
@@ -46,7 +46,7 @@
     <dependencies>
         <dependency>
             <groupId>rmit.saintgiong</groupId>
-            <artifactId>companymedia-api</artifactId>
+            <artifactId>media-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -13,10 +13,10 @@
 		<module>CompanyMediaService</module>
 	</modules>
 	<groupId>rmit.saintgiong</groupId>
-	<artifactId>companymedia</artifactId>
+	<artifactId>media</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>companymedia</name>
+	<name>JM-CompanyMedia</name>
 	<description>Company Media service of team SGJM</description>
 	<url/>
 	<licenses>
