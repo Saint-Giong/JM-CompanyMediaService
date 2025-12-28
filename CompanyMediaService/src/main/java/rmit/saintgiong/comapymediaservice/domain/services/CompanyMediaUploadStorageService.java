@@ -8,6 +8,7 @@ import rmit.saintgiong.comapymediaservice.common.storage.ObjectStorageService;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.UploadStorageResponseDto;
 import rmit.saintgiong.companymediaapi.internal.services.UploadStorageInterface;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.UUID;
@@ -37,9 +38,13 @@ public class CompanyMediaUploadStorageService implements UploadStorageInterface 
             String savedObjectName = objectStorageService.upload(objectName, bytes, contentType);
             log.info("method=uploadCompanyMedia, message=Uploaded object, objectName={}", savedObjectName);
 
+            String signedUrl = objectStorageService
+                    .signUrl(savedObjectName, Duration.ofMinutes(gcsProps.getSignedUrlTtlMinutes()))
+                    .toString();
+
             return UploadStorageResponseDto.builder()
                     .isSuccess(true)
-                    .url(savedObjectName)
+                    .url(signedUrl)
                     .build();
         } catch (Exception ex) {
             log.warn("method=uploadCompanyMedia, message=Upload failed, companyId={}, error={}", companyId, ex.toString());
@@ -70,4 +75,3 @@ public class CompanyMediaUploadStorageService implements UploadStorageInterface 
         };
     }
 }
-
