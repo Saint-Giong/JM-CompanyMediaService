@@ -1,6 +1,6 @@
 package rmit.saintgiong.companymediaapi.internal.services;
 
-import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaMetaRequestDto;
+import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 
 public interface CreateCompanyMediaInterface {
@@ -12,7 +12,7 @@ public interface CreateCompanyMediaInterface {
      * If it doesn't include media, pass null/empty bytes and other file fields as null.
      */
     CreateCompanyMediaResponseDto createCompanyMedia(
-            CreateCompanyMediaMetaRequestDto meta,
+            CreateCompanyMediaRequestDto meta,
             byte[] bytes,
             String contentType,
             String originalFilename

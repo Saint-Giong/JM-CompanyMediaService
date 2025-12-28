@@ -9,9 +9,9 @@ import rmit.saintgiong.companymediaapi.internal.common.type.MediaType;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class UpdateCompanyMediaRequestDto {
+@AllArgsConstructor
+public class CreateCompanyMediaRequestDto {
     @NotBlank
     private String mediaTitle;
 
@@ -20,4 +20,7 @@ public class UpdateCompanyMediaRequestDto {
     private MediaType mediaType;
 
     private String mediaUrl;
+
+    @NotBlank
+    private String companyId;
 }

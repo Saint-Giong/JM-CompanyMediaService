@@ -1,18 +1,13 @@
 package rmit.saintgiong.comapymediaservice.domain.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
-import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaMetaRequestDto;
+import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.request.UpdateCompanyMediaRequestDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.QueryCompanyMediaListResponseDto;
@@ -36,29 +31,12 @@ public class CompanyMediaController {
 
     private final DeleteCompanyMediaInterface deleteService;
 
-    private final ObjectMapper objectMapper;
-    private final Validator validator;
-
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Callable<ResponseEntity<CreateCompanyMediaResponseDto>> createCompanyMedia(
-            @RequestPart("meta") byte[] metaBytes,
-            @RequestPart(value = "file", required = false) MultipartFile file
+            @Valid @RequestBody CreateCompanyMediaRequestDto meta
     ) {
         return () -> {
-            CreateCompanyMediaMetaRequestDto meta = objectMapper.readValue(metaBytes, CreateCompanyMediaMetaRequestDto.class);
-            validate(meta);
-
-            byte[] bytes = null;
-            String contentType = null;
-            String originalFilename = null;
-            if (file != null && !file.isEmpty()) {
-                bytes = file.getBytes();
-                contentType = file.getContentType();
-                originalFilename = file.getOriginalFilename();
-            }
-
-            CreateCompanyMediaResponseDto response = createService.createCompanyMedia(meta, bytes, contentType, originalFilename);
-
+            CreateCompanyMediaResponseDto response = createService.createCompanyMedia(meta, null, null, null);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         };
     }
@@ -80,27 +58,13 @@ public class CompanyMediaController {
         };
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Callable<ResponseEntity<Void>> updateCompanyMedia(
             @PathVariable("id") @UUID String id,
-            @RequestPart("meta") byte[] metaBytes,
-            @RequestPart(value = "file", required = false) MultipartFile file
+            @Valid @RequestBody UpdateCompanyMediaRequestDto request
     ) {
         return () -> {
-            UpdateCompanyMediaRequestDto request = objectMapper.readValue(metaBytes, UpdateCompanyMediaRequestDto.class);
-            validate(request);
-
-            byte[] bytes = null;
-            String contentType = null;
-            String originalFilename = null;
-            if (file != null && !file.isEmpty()) {
-                bytes = file.getBytes();
-                contentType = file.getContentType();
-                originalFilename = file.getOriginalFilename();
-            }
-
-            updateService.updateCompanyMedia(id, request, bytes, contentType, originalFilename);
-
+            updateService.updateCompanyMedia(id, request, null, null, null);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         };
     }
@@ -111,12 +75,5 @@ public class CompanyMediaController {
             deleteService.deleteCompanyMedia(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         };
-    }
-
-    private <T> void validate(@Valid T dto) {
-        var violations = validator.validate(dto);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException((java.util.Set<ConstraintViolation<?>>) (java.util.Set<?>) violations);
-        }
     }
 }

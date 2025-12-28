@@ -5,20 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import rmit.saintgiong.companymediaapi.internal.common.type.MediaType;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCompanyMediaMetaRequestDto {
-    @NotBlank
-    private String mediaTitle;
-
-    private String mediaDescription;
-
-    private MediaType mediaType;
-
+public class UploadStorageRequestDto {
     @NotBlank
     private String companyId;
 }
+

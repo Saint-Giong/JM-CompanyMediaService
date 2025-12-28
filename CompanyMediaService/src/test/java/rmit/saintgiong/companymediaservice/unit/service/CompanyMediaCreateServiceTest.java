@@ -12,7 +12,7 @@ import rmit.saintgiong.comapymediaservice.domain.repositories.CompanyMediaReposi
 import rmit.saintgiong.comapymediaservice.domain.repositories.entities.CompanyMediaEntity;
 import rmit.saintgiong.comapymediaservice.domain.services.CompanyMediaCreateService;
 import rmit.saintgiong.comapymediaservice.domain.validators.CompanyMediaCreateValidator;
-import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaMetaRequestDto;
+import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 import rmit.saintgiong.companymediaapi.internal.common.type.MediaType;
 
@@ -47,7 +47,7 @@ class CompanyMediaCreateServiceTest {
 
         when(gcsProps.getUploadPrefix()).thenReturn("company-media/");
 
-        CreateCompanyMediaMetaRequestDto meta = CreateCompanyMediaMetaRequestDto.builder()
+        CreateCompanyMediaRequestDto meta = CreateCompanyMediaRequestDto.builder()
                 .mediaTitle("Test")
                 .mediaDescription("Desc")
                 .mediaType(MediaType.IMAGE)
@@ -58,7 +58,7 @@ class CompanyMediaCreateServiceTest {
         String contentType = "image/png";
         String objectName = "company-media/company/" + companyId + "/x.png";
 
-        doNothing().when(createValidator).validate(any(CreateCompanyMediaMetaRequestDto.class));
+        doNothing().when(createValidator).validate(any(CreateCompanyMediaRequestDto.class));
         when(objectStorageService.upload(anyString(), eq(bytes), eq(contentType))).thenReturn(objectName);
 
         CompanyMediaEntity savedEntity = CompanyMediaEntity.builder()
