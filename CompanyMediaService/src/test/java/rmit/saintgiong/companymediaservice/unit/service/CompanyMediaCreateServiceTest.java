@@ -6,8 +6,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import rmit.saintgiong.comapymediaservice.common.storage.GcsStorageProperties;
-import rmit.saintgiong.comapymediaservice.common.storage.ObjectStorageService;
 import rmit.saintgiong.comapymediaservice.domain.repositories.CompanyMediaRepository;
 import rmit.saintgiong.comapymediaservice.domain.repositories.entities.CompanyMediaEntity;
 import rmit.saintgiong.comapymediaservice.domain.services.CompanyMediaCreateService;
@@ -31,42 +29,28 @@ class CompanyMediaCreateServiceTest {
     @Mock
     private CompanyMediaCreateValidator createValidator;
 
-    @Mock
-    private ObjectStorageService objectStorageService;
-
-    @Mock
-    private GcsStorageProperties gcsProps;
-
     @InjectMocks
     private CompanyMediaCreateService profileCreateService;
 
     @Test
-    void givenValidMetaAndBytes_whenUploadCreate_thenUploadsAndPersistsObjectName() {
+    void givenValidMetaWithMediaUrl_whenCreate_thenPersistsMediaUrl() {
         UUID generatedId = UUID.randomUUID();
         String companyId = UUID.randomUUID().toString();
-
-        when(gcsProps.getUploadPrefix()).thenReturn("company-media/");
 
         CreateCompanyMediaRequestDto meta = CreateCompanyMediaRequestDto.builder()
                 .mediaTitle("Test")
                 .mediaDescription("Desc")
                 .mediaType(MediaType.IMAGE)
+                .mediaUrl("company-media/company/" + companyId + "/x.png")
                 .companyId(companyId)
                 .build();
-
-        byte[] bytes = "hello".getBytes();
-        String contentType = "image/png";
-        String objectName = "company-media/company/" + companyId + "/x.png";
-
-        doNothing().when(createValidator).validate(any(CreateCompanyMediaRequestDto.class));
-        when(objectStorageService.upload(anyString(), eq(bytes), eq(contentType))).thenReturn(objectName);
 
         CompanyMediaEntity savedEntity = CompanyMediaEntity.builder()
                 .id(generatedId)
                 .mediaTitle(meta.getMediaTitle())
                 .mediaDescription(meta.getMediaDescription())
                 .mediaType(meta.getMediaType().name())
-                .mediaUrl(objectName)
+                .mediaUrl(meta.getMediaUrl())
                 .companyId(UUID.fromString(companyId))
                 .build();
 
@@ -74,19 +58,19 @@ class CompanyMediaCreateServiceTest {
 
         CreateCompanyMediaResponseDto resp = profileCreateService.createCompanyMedia(
                 meta,
-                bytes,
-                contentType,
-                "x.png"
+                null,
+                null,
+                null
         );
 
         assertNotNull(resp);
         assertEquals(generatedId.toString(), resp.getId());
 
-        verify(objectStorageService, times(1)).upload(anyString(), eq(bytes), eq(contentType));
+        verify(createValidator, times(1)).validate(any(CreateCompanyMediaRequestDto.class));
 
         ArgumentCaptor<CompanyMediaEntity> entityCaptor = ArgumentCaptor.forClass(CompanyMediaEntity.class);
         verify(repository, times(1)).save(entityCaptor.capture());
-        assertEquals(objectName, entityCaptor.getValue().getMediaUrl());
+        assertEquals(meta.getMediaUrl(), entityCaptor.getValue().getMediaUrl());
         assertEquals(UUID.fromString(companyId), entityCaptor.getValue().getCompanyId());
     }
 }

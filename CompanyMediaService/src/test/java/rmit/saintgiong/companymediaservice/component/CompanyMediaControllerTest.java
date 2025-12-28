@@ -46,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = JmCompanyMediaApplication.class)
 @AutoConfigureMockMvc
 @DisplayName("Company Media Controller Tests")
-class CompanyProfileControllerTest {
+class CompanyMediaControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
