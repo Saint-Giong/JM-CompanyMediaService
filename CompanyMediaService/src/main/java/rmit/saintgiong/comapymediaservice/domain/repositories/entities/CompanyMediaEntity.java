@@ -30,20 +30,12 @@ public class CompanyMediaEntity {
 
     private String mediaDescription;
 
-    @Column(nullable = false)
+    // mediaType is optional: a company media can be a text-only post without an uploaded file.
+    @Column(nullable = true)
     private String mediaType;
 
-    @Column(nullable = false)
     private String mediaUrl;
 
     @Column(nullable = false)
     private UUID companyId;
-
-    /**
-     * Marks the currently-used company profile image.
-     * Business rule: at most one record per company should have active=true.
-     */
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean active = false;
 }

@@ -4,20 +4,18 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
+import rmit.saintgiong.companymediaapi.internal.common.dto.request.UpdateCompanyMediaRequestDto;
+import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.QueryCompanyMediaListResponseDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.QueryCompanyMediaResponseDto;
 import rmit.saintgiong.companymediaapi.internal.services.CreateCompanyMediaInterface;
+import rmit.saintgiong.companymediaapi.internal.services.DeleteCompanyMediaInterface;
 import rmit.saintgiong.companymediaapi.internal.services.QueryCompanyMediaInterface;
 import rmit.saintgiong.companymediaapi.internal.services.UpdateCompanyMediaInterface;
-import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
-import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 
 import java.util.concurrent.Callable;
 
@@ -31,10 +29,14 @@ public class CompanyMediaController {
 
     private final QueryCompanyMediaInterface queryService;
 
-    @PostMapping
-    public Callable<ResponseEntity<CreateCompanyMediaResponseDto>> createCompanyMedia(@Valid @RequestBody CreateCompanyMediaRequestDto requestDto) {
+    private final DeleteCompanyMediaInterface deleteService;
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Callable<ResponseEntity<CreateCompanyMediaResponseDto>> createCompanyMedia(
+            @Valid @RequestBody CreateCompanyMediaRequestDto meta
+    ) {
         return () -> {
-            CreateCompanyMediaResponseDto response = createService.createCompanyMedia(requestDto);
+            CreateCompanyMediaResponseDto response = createService.createCompanyMedia(meta, null, null, null);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         };
     }
@@ -56,19 +58,21 @@ public class CompanyMediaController {
         };
     }
 
-    @GetMapping("/active")
-    public Callable<ResponseEntity<QueryCompanyMediaResponseDto>> getActiveCompanyProfileImage(
-            @RequestParam("companyId") String companyId) {
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Callable<ResponseEntity<Void>> updateCompanyMedia(
+            @PathVariable("id") @UUID String id,
+            @Valid @RequestBody UpdateCompanyMediaRequestDto request
+    ) {
         return () -> {
-            QueryCompanyMediaResponseDto response = queryService.getActiveCompanyProfileImage(companyId);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            updateService.updateCompanyMedia(id, request, null, null, null);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         };
     }
 
-    @PostMapping("/{id}/activate")
-    public Callable<ResponseEntity<Void>> activateCompanyProfileImage(@PathVariable("id") @UUID String id) {
+    @DeleteMapping("/{id}")
+    public Callable<ResponseEntity<Void>> deleteCompanyMedia(@PathVariable("id") @UUID String id) {
         return () -> {
-            updateService.activateCompanyProfileImage(id);
+            deleteService.deleteCompanyMedia(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         };
     }
