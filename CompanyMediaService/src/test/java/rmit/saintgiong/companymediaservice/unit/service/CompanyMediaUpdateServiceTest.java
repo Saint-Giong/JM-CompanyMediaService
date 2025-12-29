@@ -14,7 +14,6 @@ import rmit.saintgiong.comapymediaservice.domain.services.CompanyMediaUpdateServ
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -39,28 +38,37 @@ class CompanyMediaUpdateServiceTest {
     }
 
     @Test
-    void givenValidRequest_whenUpdateService_thenUpdateSuccessfully() {
+    void givenExistingId_whenUpdateWithNoUpload_thenUpdateMetaOnly() {
         // Arrange
         CompanyMediaEntity entity = CompanyMediaEntity.builder()
                 .id(mediaId)
                 .companyId(companyId)
-                .active(false)
-                .mediaTitle("Title")
+                .mediaTitle("Old")
+                .mediaDescription("Old desc")
                 .mediaType("IMAGE")
-                .mediaUrl("http://example.com/media.png")
+                .mediaUrl("company-media/company/" + companyId + "/obj.png")
                 .build();
 
         when(repository.findById(mediaId)).thenReturn(Optional.of(entity));
-        doNothing().when(repository).deactivateAllByCompanyId(companyId);
         when(repository.save(any(CompanyMediaEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // Act & Assert
-        assertDoesNotThrow(() -> updateService.activateCompanyProfileImage(mediaId.toString()));
+        var request = rmit.saintgiong.companymediaapi.internal.common.dto.request.UpdateCompanyMediaRequestDto.builder()
+                .mediaTitle("New")
+                .mediaDescription("New desc")
+                .mediaType(null) // optional
+                .build();
 
-        // Verify
+        // Act
+        updateService.updateCompanyMedia(mediaId.toString(), request, null, null, null);
+
+        // Assert
         verify(repository, times(1)).findById(mediaId);
-        verify(repository, times(1)).deactivateAllByCompanyId(companyId);
-        verify(repository, times(1)).save(argThat(saved -> saved.isActive() && mediaId.equals(saved.getId())));
+        verify(repository, times(1)).save(argThat(saved ->
+                saved.getId().equals(mediaId)
+                        && saved.getMediaTitle().equals("New")
+                        && saved.getMediaDescription().equals("New desc")
+                        && saved.getMediaUrl() == null
+        ));
     }
 
     @Test
@@ -69,13 +77,19 @@ class CompanyMediaUpdateServiceTest {
         UUID nonExisting = UUID.randomUUID();
         when(repository.findById(nonExisting)).thenReturn(Optional.empty());
 
+        var request = rmit.saintgiong.companymediaapi.internal.common.dto.request.UpdateCompanyMediaRequestDto.builder()
+                .mediaTitle("New")
+                .mediaDescription("New desc")
+                .mediaType(null)
+                .build();
+
         // Act
-        DomainException ex = assertThrows(DomainException.class, () -> updateService.activateCompanyProfileImage(nonExisting.toString()));
+        DomainException ex = assertThrows(DomainException.class, () ->
+                updateService.updateCompanyMedia(nonExisting.toString(), request, null, null, null));
 
         // Assert
         assertEquals(RESOURCE_NOT_FOUND, ex.getDomainCode());
         verify(repository, times(1)).findById(nonExisting);
-        verify(repository, never()).deactivateAllByCompanyId(any());
         verify(repository, never()).save(any());
     }
 }

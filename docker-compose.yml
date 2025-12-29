@@ -8,9 +8,9 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: companymedia_db
+      POSTGRES_DB: media_db
     ports:
-      - "5434:5432" # map container 5432 -> host 5434 (matches application.yml)
+      - "5536:5432" # map container 5432 -> host 5434 (matches application.yml)
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,6 +18,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  companymedia-service:
+    build:
+      context: .
+      dockerfile: CompanyMediaService/Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - ./secrets/gcp-sa.json:/secrets/gcp-sa.json:ro
+    ports:
+      - "8081:8081"
+    depends_on:
+      companymedia-db:
+        condition: service_healthy
 
 volumes:
   postgres_data: {}

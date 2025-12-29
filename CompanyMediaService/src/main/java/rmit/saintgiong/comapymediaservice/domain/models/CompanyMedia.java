@@ -27,6 +27,4 @@ public class CompanyMedia {
     private LocalDateTime uploadAt;
 
     private UUID companyId;
-
-    private boolean active;
 }

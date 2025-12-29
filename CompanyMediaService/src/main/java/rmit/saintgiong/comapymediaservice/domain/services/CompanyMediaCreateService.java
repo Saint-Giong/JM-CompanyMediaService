@@ -6,19 +6,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import rmit.saintgiong.comapymediaservice.domain.repositories.CompanyMediaRepository;
 import rmit.saintgiong.comapymediaservice.domain.repositories.entities.CompanyMediaEntity;
+import rmit.saintgiong.comapymediaservice.domain.validators.CompanyMediaCreateValidator;
 import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
 import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
 import rmit.saintgiong.companymediaapi.internal.services.CreateCompanyMediaInterface;
-import rmit.saintgiong.comapymediaservice.domain.mappers.CompanyMediaMapper;
-import rmit.saintgiong.comapymediaservice.domain.models.CompanyMedia;
-import rmit.saintgiong.comapymediaservice.domain.validators.CompanyMediaCreateValidator;
+
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class CompanyMediaCreateService implements CreateCompanyMediaInterface {
-
-    private final CompanyMediaMapper mapper;
 
     private final CompanyMediaRepository repository;
 
@@ -26,26 +24,27 @@ public class CompanyMediaCreateService implements CreateCompanyMediaInterface {
 
     @Override
     @Transactional
-    public CreateCompanyMediaResponseDto createCompanyMedia(CreateCompanyMediaRequestDto request) {
-        log.info("method=createCompanyMedia, message=Start creating company profile, param={}", request);
+    public CreateCompanyMediaResponseDto createCompanyMedia(CreateCompanyMediaRequestDto meta, byte[] bytes, String contentType, String originalFilename) {
+        log.info("method=createCompanyMedia, message=Start creating company media, meta={}", meta);
 
-        // Validate business rules
-        createValidator.validate(request);
+        // Validate business rules on meta
+        createValidator.validate(meta);
 
-        // Map from creation request DTO to domain model
-        CompanyMedia newCompanyMedia = mapper.fromCreateCompanyProfileCommand(request);
+        UUID companyId = UUID.fromString(meta.getCompanyId());
 
-        // Map from domain model to persistence entity
-        CompanyMediaEntity companyMediaEntity = mapper.toEntity(newCompanyMedia);
+        CompanyMediaEntity entity = CompanyMediaEntity.builder()
+                .mediaTitle(meta.getMediaTitle())
+                .mediaDescription(meta.getMediaDescription())
+                .mediaType(meta.getMediaType() == null ? null : meta.getMediaType().name())
+                .mediaUrl(meta.getMediaUrl())
+                .companyId(companyId)
+                .build();
 
-        // Persist the new company profile
-        CompanyMediaEntity savedEntity = repository.save(companyMediaEntity);
+        CompanyMediaEntity saved = repository.save(entity);
+        log.info("method=createCompanyMedia, message=Successfully created company media, id={}", saved.getId());
 
-        log.info("method=createCompanyMedia, message=Successfully created company media, id={}", savedEntity.getId());
-
-        // Build and return the response DTO
         return CreateCompanyMediaResponseDto.builder()
-                .id(String.valueOf(savedEntity.getId()))
+                .id(String.valueOf(saved.getId()))
                 .build();
     }
 }

@@ -15,6 +15,8 @@ public class CompanyMediaCreateValidator extends CompanyMediaBaseValidator<Creat
     public void validate(CreateCompanyMediaRequestDto dto) {
         errors.clear();
 
+        // TODO: Add business rules here if needed.
+
         throwIfErrors();
     }
 }

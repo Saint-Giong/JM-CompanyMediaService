@@ -12,5 +12,4 @@ public class QueryCompanyMediaResponseDto {
     private String mediaType;
     private String mediaPath;
     private String companyId;
-    private boolean active;
 }
