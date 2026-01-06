@@ -6,10 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import rmit.saintgiong.comapymediaservice.common.exception.DomainException;
-import rmit.saintgiong.comapymediaservice.domain.repositories.CompanyMediaRepository;
-import rmit.saintgiong.comapymediaservice.domain.repositories.entities.CompanyMediaEntity;
-import rmit.saintgiong.comapymediaservice.domain.services.CompanyMediaUpdateService;
+import rmit.saintgiong.mediaapi.internal.common.dto.request.UpdateCompanyMediaRequestDto;
+import rmit.saintgiong.mediaservice.common.exception.domain.DomainException;
+import rmit.saintgiong.mediaservice.domain.repositories.CompanyMediaRepository;
+import rmit.saintgiong.mediaservice.domain.repositories.entities.CompanyMediaEntity;
+import rmit.saintgiong.mediaservice.domain.services.CompanyMediaUpdateService;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -17,7 +18,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static rmit.saintgiong.companymediaapi.internal.common.type.DomainCode.RESOURCE_NOT_FOUND;
+import static rmit.saintgiong.mediaapi.internal.common.type.DomainCode.RESOURCE_NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyMediaUpdateServiceTest {
@@ -52,7 +53,7 @@ class CompanyMediaUpdateServiceTest {
         when(repository.findById(mediaId)).thenReturn(Optional.of(entity));
         when(repository.save(any(CompanyMediaEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        var request = rmit.saintgiong.companymediaapi.internal.common.dto.request.UpdateCompanyMediaRequestDto.builder()
+        var request = UpdateCompanyMediaRequestDto.builder()
                 .mediaTitle("New")
                 .mediaDescription("New desc")
                 .mediaType(null) // optional
@@ -77,7 +78,7 @@ class CompanyMediaUpdateServiceTest {
         UUID nonExisting = UUID.randomUUID();
         when(repository.findById(nonExisting)).thenReturn(Optional.empty());
 
-        var request = rmit.saintgiong.companymediaapi.internal.common.dto.request.UpdateCompanyMediaRequestDto.builder()
+        var request = UpdateCompanyMediaRequestDto.builder()
                 .mediaTitle("New")
                 .mediaDescription("New desc")
                 .mediaType(null)

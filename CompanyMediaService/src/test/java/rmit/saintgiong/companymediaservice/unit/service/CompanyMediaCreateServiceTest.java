@@ -6,13 +6,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import rmit.saintgiong.comapymediaservice.domain.repositories.CompanyMediaRepository;
-import rmit.saintgiong.comapymediaservice.domain.repositories.entities.CompanyMediaEntity;
-import rmit.saintgiong.comapymediaservice.domain.services.CompanyMediaCreateService;
-import rmit.saintgiong.comapymediaservice.domain.validators.CompanyMediaCreateValidator;
-import rmit.saintgiong.companymediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
-import rmit.saintgiong.companymediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
-import rmit.saintgiong.companymediaapi.internal.common.type.MediaType;
+import rmit.saintgiong.mediaservice.domain.repositories.CompanyMediaRepository;
+import rmit.saintgiong.mediaservice.domain.repositories.entities.CompanyMediaEntity;
+import rmit.saintgiong.mediaservice.domain.services.CompanyMediaCreateService;
+import rmit.saintgiong.mediaservice.domain.validators.CompanyMediaCreateValidator;
+import rmit.saintgiong.mediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
+import rmit.saintgiong.mediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;
+import rmit.saintgiong.mediaapi.internal.common.type.MediaType;
 
 import java.util.UUID;
 
