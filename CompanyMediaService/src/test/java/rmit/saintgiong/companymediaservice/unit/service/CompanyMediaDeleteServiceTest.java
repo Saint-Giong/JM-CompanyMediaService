@@ -5,16 +5,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import rmit.saintgiong.comapymediaservice.common.exception.DomainException;
-import rmit.saintgiong.comapymediaservice.domain.repositories.CompanyMediaRepository;
-import rmit.saintgiong.comapymediaservice.domain.services.CompanyMediaDeleteService;
+import rmit.saintgiong.mediaservice.common.exception.domain.DomainException;
+import rmit.saintgiong.mediaservice.domain.repositories.CompanyMediaRepository;
+import rmit.saintgiong.mediaservice.domain.services.CompanyMediaDeleteService;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static rmit.saintgiong.companymediaapi.internal.common.type.DomainCode.RESOURCE_NOT_FOUND;
+import static rmit.saintgiong.mediaapi.internal.common.type.DomainCode.RESOURCE_NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyMediaDeleteServiceTest {

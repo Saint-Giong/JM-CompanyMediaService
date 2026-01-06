@@ -5,10 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import rmit.saintgiong.comapymediaservice.common.storage.GcsStorageProperties;
-import rmit.saintgiong.comapymediaservice.common.storage.ObjectStorageService;
-import rmit.saintgiong.comapymediaservice.domain.services.CompanyMediaUploadStorageService;
-import rmit.saintgiong.companymediaapi.internal.common.dto.response.UploadStorageResponseDto;
+import rmit.saintgiong.mediaservice.common.storage.GcsStorageProperties;
+import rmit.saintgiong.mediaservice.common.storage.ObjectStorageService;
+import rmit.saintgiong.mediaservice.domain.services.CompanyMediaUploadStorageService;
+import rmit.saintgiong.mediaapi.internal.common.dto.response.UploadStorageResponseDto;
 
 import java.net.URL;
 import java.time.Duration;
