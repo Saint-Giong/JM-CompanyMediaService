@@ -11,6 +11,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
@@ -30,11 +31,14 @@ public class KafkaConsumerConfig {
     @Value("${kafka.schema-registry-host-url}")
     private String schemaRegistryHostUrl;
 
+    @Value("${spring.application.name}")
+    private String serviceName;
+
     @Bean
-    public ConsumerFactory<String, Object> profileConsumerFactory() {
+    public ConsumerFactory<String, Object> mediaConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaHostUrl);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "media-service-consumer-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, serviceName + "-consumer-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
 
@@ -46,21 +50,24 @@ public class KafkaConsumerConfig {
 
         // Cho phép đọc từ đầu nếu không tìm thấy offset (tránh lỗi offset out of range)
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        
+
         return new DefaultKafkaConsumerFactory<>(props);
     }
-    
+
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> profileKafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, Object> mediaKafkaListenerContainerFactory(KafkaTemplate<String, Object> kafkaTemplate) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(profileConsumerFactory());
+        factory.setConsumerFactory(mediaConsumerFactory());
+        factory.setReplyTemplate(kafkaTemplate);
         return factory;
     }
 
     @Bean
     public ConcurrentMessageListenerContainer<String, Object> replyContainer(ConsumerFactory<String, Object> consumerFactory) {
-        ContainerProperties containerProperties = new ContainerProperties(KafkaTopic.COMPANY_REGISTRATION_REPLY_TOPIC);
-        containerProperties.setGroupId("media-service-reply-group");
+        ContainerProperties containerProperties = new ContainerProperties(
+                KafkaTopic.COMPANY_REGISTRATION_REPLY_TOPIC
+        );
+        containerProperties.setGroupId(serviceName + "-reply-group");
 
         return new ConcurrentMessageListenerContainer<>(consumerFactory, containerProperties);
     }
