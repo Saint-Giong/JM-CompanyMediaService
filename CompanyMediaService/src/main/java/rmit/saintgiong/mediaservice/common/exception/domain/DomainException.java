@@ -1,6 +1,6 @@
-package rmit.saintgiong.comapymediaservice.common.exception;
+package rmit.saintgiong.mediaservice.common.exception.domain;
 
-import rmit.saintgiong.companymediaapi.internal.common.type.DomainCode;
+import rmit.saintgiong.mediaapi.internal.common.type.DomainCode;
 
 public class DomainException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-package rmit.saintgiong.comapymediaservice.common.storage;
+package rmit.saintgiong.mediaservice.common.storage;
 
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;

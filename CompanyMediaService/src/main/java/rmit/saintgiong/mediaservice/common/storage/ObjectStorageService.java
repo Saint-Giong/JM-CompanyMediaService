@@ -1,4 +1,4 @@
-package rmit.saintgiong.comapymediaservice.common.storage;
+package rmit.saintgiong.mediaservice.common.storage;
 
 import java.net.URL;
 import java.time.Duration;

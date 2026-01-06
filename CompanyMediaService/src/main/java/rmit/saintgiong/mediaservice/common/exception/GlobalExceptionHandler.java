@@ -1,6 +1,8 @@
-package rmit.saintgiong.comapymediaservice.common.exception;
+package rmit.saintgiong.mediaservice.common.exception;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -10,19 +12,29 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.validation.FieldError;
-import rmit.saintgiong.companymediaapi.internal.common.type.DomainCode;
-import rmit.saintgiong.companymediaapi.internal.common.type.ErrorLocation;
+import rmit.saintgiong.mediaapi.internal.common.api.ApiError;
+import rmit.saintgiong.mediaapi.internal.common.api.ApiErrorDetails;
+import rmit.saintgiong.mediaservice.common.exception.domain.DomainException;
+import rmit.saintgiong.mediaservice.common.exception.token.InvalidCredentialsException;
+import rmit.saintgiong.mediaservice.common.exception.token.InvalidTokenException;
+import rmit.saintgiong.mediaservice.common.exception.token.TokenExpiredException;
+import rmit.saintgiong.mediaservice.common.exception.token.TokenReuseException;
+import rmit.saintgiong.mediaapi.internal.common.type.DomainCode;
+import rmit.saintgiong.mediaapi.internal.common.type.ErrorLocation;
+import rmit.saintgiong.shared.response.ErrorResponseDto;
+import rmit.saintgiong.shared.type.CookieType;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static rmit.saintgiong.companymediaapi.internal.common.type.DomainCode.INTERNAL_SERVER_ERROR;
-import static rmit.saintgiong.companymediaapi.internal.common.type.DomainCode.INVALID_REQUEST_PARAMETER;
-
+import static rmit.saintgiong.mediaapi.internal.common.type.DomainCode.INTERNAL_SERVER_ERROR;
+import static rmit.saintgiong.mediaapi.internal.common.type.DomainCode.INVALID_REQUEST_PARAMETER;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends BaseExceptionHandler {
@@ -114,5 +126,89 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(ex.getMessage());
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<ErrorResponseDto> handleTokenExpiredException(
+            TokenExpiredException exception,
+            WebRequest request
+    ) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .apiPath(request.getDescription(false).replace("uri=", ""))
+                .errorCode(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponseDto);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidTokenException(
+            InvalidTokenException exception,
+            WebRequest request
+    ) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .apiPath(request.getDescription(false).replace("uri=", ""))
+                .errorCode(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponseDto);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidCredentialsException(
+            InvalidCredentialsException exception,
+            WebRequest request
+    ) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .apiPath(request.getDescription(false).replace("uri=", ""))
+                .errorCode(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponseDto);
+    }
+
+    @ExceptionHandler(TokenReuseException.class)
+    public ResponseEntity<ErrorResponseDto> handleTokenReuseException(
+            TokenReuseException exception,
+            WebRequest request,
+            HttpServletResponse response
+    ) {
+        log.warn("Token reuse detected: {}", exception.getMessage());
+        Cookie accessCookie = new Cookie(CookieType.ACCESS_TOKEN, "");
+        accessCookie.setHttpOnly(true);
+        accessCookie.setSecure(true);
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(0);
+        response.addCookie(accessCookie);
+
+        Cookie refreshCookie = new Cookie(CookieType.REFRESH_TOKEN, "");
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+        response.addCookie(refreshCookie);
+
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .apiPath(request.getDescription(false).replace("uri=", ""))
+                .errorCode(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponseDto);
     }
 }

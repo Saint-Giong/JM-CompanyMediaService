@@ -1,8 +1,10 @@
-package rmit.saintgiong.comapymediaservice.common.exception;
+package rmit.saintgiong.mediaservice.common.exception;
 
 import org.springframework.validation.ObjectError;
-import rmit.saintgiong.companymediaapi.internal.common.type.DomainCode;
-import rmit.saintgiong.companymediaapi.internal.common.type.ErrorLocation;
+import rmit.saintgiong.mediaapi.internal.common.api.ApiError;
+import rmit.saintgiong.mediaapi.internal.common.api.ApiErrorDetails;
+import rmit.saintgiong.mediaapi.internal.common.type.DomainCode;
+import rmit.saintgiong.mediaapi.internal.common.type.ErrorLocation;
 
 import java.util.Collections;
 import java.util.List;
