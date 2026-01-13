@@ -1,0 +1,15 @@
+{
+  "namespace": "rmit.saintgiong.mediaapi.external.common.dto",
+  "type": "record",
+  "name": "LogoUpdatedRequest",
+  "fields": [
+    {
+      "name": "companyId",
+      "type": "string"
+    },
+    {
+      "name": "logoUrl",
+      "type": "string"
+    }
+  ]
+}
