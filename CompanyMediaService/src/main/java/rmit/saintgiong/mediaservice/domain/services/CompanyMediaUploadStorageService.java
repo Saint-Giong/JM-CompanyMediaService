@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import rmit.saintgiong.mediaapi.internal.common.dto.response.UploadStorageResponseDto;
 import rmit.saintgiong.mediaapi.internal.services.UploadStorageInterface;
+import rmit.saintgiong.mediaapi.external.common.dto.LogoUpdatedRequest;
 import rmit.saintgiong.mediaapi.external.services.kafka.EventProducerInterface;
 import rmit.saintgiong.mediaservice.common.storage.GcsStorageProperties;
 import rmit.saintgiong.mediaservice.common.storage.ObjectStorageService;
@@ -107,7 +108,7 @@ public class CompanyMediaUploadStorageService implements UploadStorageInterface 
 
             // Send Kafka event to Profile Service
             try {
-                rmit.saintgiong.mediaapi.external.common.dto.LogoUpdatedRequest event = rmit.saintgiong.mediaapi.external.common.dto.LogoUpdatedRequest
+                LogoUpdatedRequest event = LogoUpdatedRequest
                         .newBuilder()
                         .setCompanyId(companyId)
                         .setLogoUrl(signedUrl)
