@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import rmit.saintgiong.mediaapi.internal.common.dto.response.UploadStorageResponseDto;
 import rmit.saintgiong.mediaapi.internal.services.UploadStorageInterface;
+import rmit.saintgiong.mediaapi.external.common.dto.LogoUpdatedRequest;
+import rmit.saintgiong.mediaapi.external.services.kafka.EventProducerInterface;
 import rmit.saintgiong.mediaservice.common.storage.GcsStorageProperties;
 import rmit.saintgiong.mediaservice.common.storage.ObjectStorageService;
 
@@ -26,6 +28,7 @@ public class CompanyMediaUploadStorageService implements UploadStorageInterface 
 
     private final ObjectStorageService objectStorageService;
     private final GcsStorageProperties gcsProps;
+    private final EventProducerInterface eventProducerInterface;
 
     @Override
     public UploadStorageResponseDto uploadCompanyMedia(String companyId, byte[] bytes, String contentType,
@@ -102,6 +105,23 @@ public class CompanyMediaUploadStorageService implements UploadStorageInterface 
             String signedUrl = objectStorageService
                     .signUrl(savedObjectName, Duration.ofDays(7))
                     .toString();
+
+            // Send Kafka event to Profile Service
+            try {
+                LogoUpdatedRequest event = LogoUpdatedRequest
+                        .newBuilder()
+                        .setCompanyId(companyId)
+                        .setLogoUrl(signedUrl)
+                        .build();
+                eventProducerInterface.send(
+                        rmit.saintgiong.mediaapi.internal.common.type.KafkaTopic.JM_UPDATE_LOGO_REQUEST_TOPIC,
+                        event);
+                log.info("method=uploadCompanyLogo, message=Sent logo update event, companyId={}", companyId);
+            } catch (Exception ex) {
+                log.error("method=uploadCompanyLogo, message=Failed to send Kafka event, companyId={}, error={}",
+                        companyId, ex.getMessage());
+                // Non-blocking - continue even if Kafka fails
+            }
 
             return UploadStorageResponseDto.builder()
                     .isSuccess(true)
