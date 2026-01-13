@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import rmit.saintgiong.mediaservice.common.storage.GcsStorageProperties;
 import rmit.saintgiong.mediaservice.common.storage.ObjectStorageService;
-import rmit.saintgiong.mediaservice.domain.services.CompanyMediaUploadStorageService;
+import rmit.saintgiong.mediaservice.domain.services.external.storage.CompanyMediaUploadStorageService;
 import rmit.saintgiong.mediaapi.internal.common.dto.response.UploadStorageResponseDto;
 
 import java.net.URL;

@@ -1,4 +1,4 @@
-package rmit.saintgiong.mediaservice.domain.services;
+package rmit.saintgiong.mediaservice.domain.services.external.storage;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -12,10 +12,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import rmit.saintgiong.mediaapi.internal.common.dto.response.UploadStorageResponseDto;
 import rmit.saintgiong.mediaapi.internal.services.UploadStorageInterface;
-import rmit.saintgiong.mediaapi.external.common.dto.LogoUpdatedRequest;
 import rmit.saintgiong.mediaapi.external.services.kafka.EventProducerInterface;
 import rmit.saintgiong.mediaservice.common.storage.GcsStorageProperties;
 import rmit.saintgiong.mediaservice.common.storage.ObjectStorageService;
+import rmit.saintgiong.shared.dto.avro.media.UpdateLogoRequestRecord;
+import rmit.saintgiong.shared.type.KafkaTopic;
 
 @Service
 @AllArgsConstructor
@@ -108,14 +109,16 @@ public class CompanyMediaUploadStorageService implements UploadStorageInterface 
 
             // Send Kafka event to Profile Service
             try {
-                LogoUpdatedRequest event = LogoUpdatedRequest
+                UpdateLogoRequestRecord event = UpdateLogoRequestRecord
                         .newBuilder()
                         .setCompanyId(companyId)
                         .setLogoUrl(signedUrl)
                         .build();
+
                 eventProducerInterface.send(
-                        rmit.saintgiong.mediaapi.internal.common.type.KafkaTopic.JM_UPDATE_LOGO_REQUEST_TOPIC,
-                        event);
+                        KafkaTopic.JM_UPDATE_LOGO_REQUEST_TOPIC,
+                        event
+                );
                 log.info("method=uploadCompanyLogo, message=Sent logo update event, companyId={}", companyId);
             } catch (Exception ex) {
                 log.error("method=uploadCompanyLogo, message=Failed to send Kafka event, companyId={}, error={}",

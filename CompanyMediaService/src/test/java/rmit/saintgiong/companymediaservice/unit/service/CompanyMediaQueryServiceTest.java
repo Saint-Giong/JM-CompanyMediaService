@@ -10,7 +10,7 @@ import rmit.saintgiong.mediaservice.common.storage.GcsStorageProperties;
 import rmit.saintgiong.mediaservice.common.storage.ObjectStorageService;
 import rmit.saintgiong.mediaservice.domain.mappers.CompanyMediaMapper;
 import rmit.saintgiong.mediaservice.domain.repositories.entities.CompanyMediaEntity;
-import rmit.saintgiong.mediaservice.domain.services.CompanyMediaQueryService;
+import rmit.saintgiong.mediaservice.domain.services.internal.CompanyMediaQueryService;
 import rmit.saintgiong.mediaservice.domain.validators.CompanyMediaBaseValidator;
 import rmit.saintgiong.mediaapi.internal.common.dto.response.QueryCompanyMediaResponseDto;
 

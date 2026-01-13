@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import rmit.saintgiong.mediaservice.domain.repositories.CompanyMediaRepository;
 import rmit.saintgiong.mediaservice.domain.repositories.entities.CompanyMediaEntity;
-import rmit.saintgiong.mediaservice.domain.services.CompanyMediaCreateService;
+import rmit.saintgiong.mediaservice.domain.services.internal.CompanyMediaCreateService;
 import rmit.saintgiong.mediaservice.domain.validators.CompanyMediaCreateValidator;
 import rmit.saintgiong.mediaapi.internal.common.dto.request.CreateCompanyMediaRequestDto;
 import rmit.saintgiong.mediaapi.internal.common.dto.response.CreateCompanyMediaResponseDto;

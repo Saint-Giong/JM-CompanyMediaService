@@ -10,7 +10,7 @@ import rmit.saintgiong.mediaapi.internal.common.dto.request.UpdateCompanyMediaRe
 import rmit.saintgiong.mediaservice.common.exception.domain.DomainException;
 import rmit.saintgiong.mediaservice.domain.repositories.CompanyMediaRepository;
 import rmit.saintgiong.mediaservice.domain.repositories.entities.CompanyMediaEntity;
-import rmit.saintgiong.mediaservice.domain.services.CompanyMediaUpdateService;
+import rmit.saintgiong.mediaservice.domain.services.internal.CompanyMediaUpdateService;
 
 import java.util.Optional;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package rmit.saintgiong.mediaservice.domain.services;
+package rmit.saintgiong.mediaservice.domain.services.internal;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;

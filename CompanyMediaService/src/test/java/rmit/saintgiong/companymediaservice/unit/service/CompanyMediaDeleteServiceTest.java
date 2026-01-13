@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import rmit.saintgiong.mediaservice.common.exception.domain.DomainException;
 import rmit.saintgiong.mediaservice.domain.repositories.CompanyMediaRepository;
-import rmit.saintgiong.mediaservice.domain.services.CompanyMediaDeleteService;
+import rmit.saintgiong.mediaservice.domain.services.internal.CompanyMediaDeleteService;
 
 import java.util.UUID;
 

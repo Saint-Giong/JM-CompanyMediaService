@@ -1,4 +1,4 @@
-package rmit.saintgiong.mediaservice.domain.services;
+package rmit.saintgiong.mediaservice.domain.services.internal;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
